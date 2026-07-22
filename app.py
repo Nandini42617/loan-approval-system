@@ -9,6 +9,7 @@ import gradio as gr
 # ==========================================================
 try:
     deployed_rf = joblib.load("loan_prediction_model.pkl")
+    print("Model loaded successfully!")
 except Exception as e:
     print(f"Warning: Model not found or error loading. {e}")
     deployed_rf = None
@@ -27,12 +28,15 @@ def predict_loan_status(
     luxury_assets_value,
     bank_asset_value,
 ):
-    # --- CODE BLOCK: INPUT CAPTURE & VALIDATION ---
+    # --- CODE BLOCK: FIXED INPUT CAPTURE ARRAY ---
+    # Removed the missing 'education' and 'self_employed' variables 
+    # to prevent the NameError crash upon submission.
     values = [
-        no_of_dependents, education, self_employed, income_annum, 
-        loan_amount, loan_term, cibil_score, residential_assets_value, 
-        commercial_assets_value, luxury_assets_value, bank_asset_value
+        no_of_dependents, income_annum, loan_amount, loan_term, 
+        cibil_score, residential_assets_value, commercial_assets_value, 
+        luxury_assets_value, bank_asset_value
     ]
+    # ---------------------------------------------
 
     # 1. Empty input check
     if any(v is None or str(v).strip() == "" for v in values):
@@ -62,7 +66,6 @@ def predict_loan_status(
     
     if no_of_dependents > 20:
         return "❌ Number of dependents seems unusually high (Max 20)."
-    # ----------------------------------------------
 
     # --- CODE BLOCK: MODEL EXECUTION ---
     if deployed_rf is None:
@@ -105,7 +108,6 @@ def predict_loan_status(
 # ==========================================================
 # Description & Footer
 # ==========================================================
-# --- CODE BLOCK: UI TEXT CONFIGURATION ---
 DESCRIPTION = """
 # 🏦 Loan Approval Prediction System
 
@@ -129,12 +131,10 @@ developer_info = """
 * **Language:** Python
 * **Deployment:** Render
 """
-# -----------------------------------------
 
 # ==========================================================
 # Interface Setup
 # ==========================================================
-# --- CODE BLOCK: GRADIO COMPONENTS MAPPED TO FEATURES ---
 interface = gr.Interface(
     fn=predict_loan_status,
     inputs=[
@@ -153,13 +153,15 @@ interface = gr.Interface(
     description=DESCRIPTION,
     article=developer_info
 )
-# --------------------------------------------------------
 
 # ==========================================================
 # Launch
 # ==========================================================
 if __name__ == "__main__":
+    # Ensure unbuffered logs and port mapping for Render
+    port = int(os.environ.get("PORT", 10000))
+    print(f"Starting Gradio server on 0.0.0.0:{port}...")
     interface.launch(
         server_name="0.0.0.0",
-        server_port=int(os.environ.get("PORT", 7860)),
+        server_port=port,
     )
