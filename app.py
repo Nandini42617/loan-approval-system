@@ -18,8 +18,6 @@ except Exception as e:
 # ==========================================================
 def predict_loan_status(
     no_of_dependents,
-    education,
-    self_employed,
     income_annum,
     loan_amount,
     loan_term,
@@ -31,7 +29,7 @@ def predict_loan_status(
 ):
     # --- CODE BLOCK: INPUT CAPTURE & VALIDATION ---
     values = [
-        no_of_dependents, education, self_employed, income_annum, 
+        no_of_dependents, income_annum, 
         loan_amount, loan_term, cibil_score, residential_assets_value, 
         commercial_assets_value, luxury_assets_value, bank_asset_value
     ]
@@ -43,8 +41,6 @@ def predict_loan_status(
     # 2. Type casting
     try:
         no_of_dependents = int(no_of_dependents)
-        education = int(education) # From Dropdown
-        self_employed = int(self_employed) # From Dropdown
         income_annum = float(income_annum)
         loan_amount = float(loan_amount)
         loan_term = int(loan_term)
@@ -76,8 +72,6 @@ def predict_loan_status(
         # Array strictly ordered to match the X dataframe provided
         input_data = [[
             no_of_dependents,
-            education,
-            self_employed,
             income_annum,
             loan_amount,
             loan_term,
@@ -145,8 +139,6 @@ interface = gr.Interface(
     fn=predict_loan_status,
     inputs=[
         gr.Number(label="Number of Dependents"),
-        gr.Dropdown(choices=[("Graduate", 1), ("Not Graduate", 0)], label="Education Status"),
-        gr.Dropdown(choices=[("Yes", 1), ("No", 0)], label="Self Employed?"),
         gr.Number(label="Annual Income (₹/$)"),
         gr.Number(label="Loan Amount Requested"),
         gr.Number(label="Loan Term (Months/Years)"),
